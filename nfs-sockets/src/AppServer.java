@@ -6,7 +6,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class AppServer {
     private static List<String> arquivos = new ArrayList<>() {
@@ -27,7 +26,9 @@ public class AppServer {
                 PrintWriter pout = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader bin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                int opcao = Integer.parseInt(bin.readLine());
+                String entrada = bin.readLine();
+
+                int opcao = Integer.parseInt(entrada.split(" ")[0]);
 
                 switch (opcao) {
                     case 1 -> {
@@ -40,14 +41,12 @@ public class AppServer {
 
                         pout.println(listagem);
                     }
-                    case 2 -> {
-                        rename(bin.readLine().split(" ")[0], bin.readLine().split(" ")[1]);
-                    }
-                    case 3 -> {
-                    }
-                    case 4 -> {
-                    }
+                    case 2 -> rename(entrada.split(" ")[1], entrada.split(" ")[2]);
+                    case 3 -> create(entrada.split(" ")[1]);
+                    case 4 -> remove(entrada.split(" ")[1]);
                 }
+
+                socket.close();
             }
         } catch (IOException ioe) {
             System.err.println(ioe.getMessage());
@@ -62,7 +61,11 @@ public class AppServer {
         arquivos.set(arquivos.indexOf(nomeAnterior), nomeNovo);
     }
 
-    private static void create() {}
+    private static void create(String nomeArquivo) {
+        arquivos.add(nomeArquivo);
+    }
 
-    private static void remove() {}
+    private static void remove(String nomeArquivo) {
+        arquivos.remove(nomeArquivo);
+    }
 }

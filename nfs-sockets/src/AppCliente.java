@@ -19,30 +19,26 @@ public class AppCliente {
     };
 
     public static void main(String[] args) {
-        try (Socket socket = new Socket("localhost", 1025)) {
+        try {
+            Socket socket = new Socket("localhost", 1025);
 
             System.out.println("Cliente iniciado");
 
-            int opcao = menu();
+            String opcao = menu();
+            int opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
 
-            while(opcao < opcoes.size()) {
+            while(opcaoInt < opcoes.size()) {
                 PrintWriter pout = new PrintWriter(socket.getOutputStream(), true);
                 pout.println(opcao);
                 BufferedReader bin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                switch (opcao) {
-                    case 1 -> {
-                        System.out.println(bin.readLine());
-                    }
-                    case 2 -> {
-                    }
-                    case 3 -> {
-                    }
-                    case 4 -> {
-                    }
+                if (opcaoInt == 1) {
+                    System.out.println(bin.readLine());
                 }
 
+                socket = new Socket("localhost", 1025);
                 opcao = menu();
+                opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
             }
 
             System.out.println("Cliente encerrado");
@@ -51,13 +47,13 @@ public class AppCliente {
         }
     }
 
-    public static int menu() {
+    public static String menu() {
         System.out.println("\n=== Network File System ===");
         opcoes.forEach((opcao) -> {
             System.out.println((opcoes.indexOf(opcao) + 1) + " - " + opcao);
         });
 
         Scanner entrada = new Scanner(System.in);
-        return entrada.nextInt();
+        return entrada.nextLine();
     }
 }
