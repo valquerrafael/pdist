@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,41 +12,36 @@ public class AppServer {
             add("arquivo3.arq");
         }
     };
-    public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(1025)) {
-            System.out.println("Server iniciado\n");
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(1025);
+        System.out.println("Server iniciado\n");
 
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Cliente conectado");
+        Socket socket = serverSocket.accept();
+        System.out.println("Cliente conectado");
 
-                PrintWriter pout = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader bin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        DataInputStream dis = new DataInputStream(socket.getInputStream());
 
-                String entrada = bin.readLine();
+        while (true) {
+            String entrada = dis.readUTF();
 
-                int opcao = Integer.parseInt(entrada.split(" ")[0]);
+            int opcao = Integer.parseInt(entrada.split(" ")[0]);
 
-                switch (opcao) {
-                    case 1 -> {
-                        List<String> arquivos = readdir();
-                        StringBuilder listagem = new StringBuilder();
+            switch (opcao) {
+                case 1 -> {
+                    List<String> arquivos = readdir();
+                    StringBuilder listagem = new StringBuilder();
 
-                        for(String arquivo : arquivos) {
-                            listagem.append(arquivo).append(" ");
-                        }
-
-                        pout.println(listagem);
+                    for (String arquivo : arquivos) {
+                        listagem.append(arquivo).append(" ");
                     }
-                    case 2 -> rename(entrada.split(" ")[1], entrada.split(" ")[2]);
-                    case 3 -> create(entrada.split(" ")[1]);
-                    case 4 -> remove(entrada.split(" ")[1]);
-                }
 
-                socket.close();
+                    dos.writeUTF(listagem.toString());
+                }
+                case 2 -> rename(entrada.split(" ")[1], entrada.split(" ")[2]);
+                case 3 -> create(entrada.split(" ")[1]);
+                case 4 -> remove(entrada.split(" ")[1]);
             }
-        } catch (IOException ioe) {
-            System.err.println(ioe.getMessage());
         }
     }
 

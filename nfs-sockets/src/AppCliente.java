@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,33 +15,29 @@ public class AppCliente {
         }
     };
 
-    public static void main(String[] args) {
-        try {
-            Socket socket = new Socket("localhost", 1025);
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 1025);
 
-            System.out.println("Cliente iniciado");
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        DataInputStream dis = new DataInputStream(socket.getInputStream());
 
-            String opcao = menu();
-            int opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
+        System.out.println("Cliente iniciado");
 
-            while(opcaoInt < opcoes.size()) {
-                PrintWriter pout = new PrintWriter(socket.getOutputStream(), true);
-                pout.println(opcao);
-                BufferedReader bin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        String opcao = menu();
+        int opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
 
-                if (opcaoInt == 1) {
-                    System.out.println(bin.readLine());
-                }
+        while(opcaoInt < opcoes.size()) {
+            dos.writeUTF(opcao);
 
-                socket = new Socket("localhost", 1025);
-                opcao = menu();
-                opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
+            if (opcaoInt == 1) {
+                System.out.println(dis.readUTF());
             }
 
-            System.out.println("Cliente encerrado");
-        } catch (IOException ioe) {
-            System.err.println(ioe.getMessage());
+            opcao = menu();
+            opcaoInt = Integer.parseInt(opcao.split(" ")[0]);
         }
+
+        System.out.println("Cliente encerrado");
     }
 
     public static String menu() {
